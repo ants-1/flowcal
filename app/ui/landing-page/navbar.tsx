@@ -14,7 +14,9 @@ export default function Navbar() {
 
       <div className="flex gap-4 items-center">
         <Link href="/login" className="text-sm md:text-base">Login</Link>
-        <Button text="Get Started" />
+        <Link href="/signup">
+          <Button text="Get Started" />
+        </Link>
       </div>
     </nav>
   )
