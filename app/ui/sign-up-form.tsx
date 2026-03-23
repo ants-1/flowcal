@@ -4,8 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { SignUpFormSchema } from "../lib/schema";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function SignupForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -15,8 +18,38 @@ export default function SignupForm() {
   });
 
   const onSubmit = async (data: any) => {
-    await new Promise((res) => setTimeout(res, 1000));
-    console.log(data);
+    try {
+      const response = await fetch ("/api/signup", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.error || "Somthing went wrong");
+        return;
+      } 
+
+      const login = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (login?.error) {
+        alert("Account created, but login failed");
+        return;
+      }
+
+      router.push("/dashboard");
+    } catch (err) {
+      console.error(err);
+      alert("Error creating account");
+    }
   };
 
   return (

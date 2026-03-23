@@ -4,8 +4,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { LoginFormSchema } from "../lib/schema";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -15,8 +18,18 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: any) => {
-    await new Promise((res) => setTimeout(res, 1000));
-    console.log(data);
+    const response = await signIn("credentials", {
+      email: data.email,
+      passwod: data.password,
+      redirect: false,
+    })
+
+    if (response?.error) {
+      alert("Invalid email or password");
+      return;
+    }
+
+    router.push("/dashboard");
   };
 
   return (
